@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔗 URL Koleksiyonum Pro</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --bg-primary: #0a0e27;
+        --bg-card: #1a2147;
+        --bg-elevated: #232b56;
+        --accent: #6366f1;
+        --accent-hover: #818cf8;
+        --accent-glow: rgba(99, 102, 241, 0.4);
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --border: rgba(99, 102, 241, 0.2);
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --pin: #fbbf24;
+        --pin-glow: rgba(251, 191, 36, 0.4);
+    }
+
+    [data-theme="light"] {
+        --bg-primary: #f1f5f9;
+        --bg-card: #ffffff;
+        --bg-elevated: #f8fafc;
+        --accent: #6366f1;
+        --accent-hover: #4f46e5;
+        --accent-glow: rgba(99, 102, 241, 0.25);
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --border: rgba(99, 102, 241, 0.25);
+    }
+
+    body {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 40px 20px 100px;
+        overflow-x: hidden;
+        position: relative;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background:
+            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        animation: floatBg 20s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    [data-theme="light"] body::before {
+        opacity: 0.4;
+    }
+
+    @keyframes floatBg {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(-30px, 30px) rotate(120deg); }
+        66% { transform: translate(30px, -30px) rotate(240deg); }
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease-out;
+        position: relative;
+    }
+
+    h1 {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        letter-spacing: -1px;
+    }
+
+    .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        font-weight: 400;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 10px 18px;
+        border-radius: 100px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        backdrop-filter: blur(10px);
+        cursor: default;
+        transition: all 0.25s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+    }
+
+    .stat-item strong {
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .stat-item.pin-stat strong {
+        color: var(--pin);
+    }
+
+    .stat-item.clickable {
+        cursor: pointer;
+    }
+
+    .stat-item.clickable:hover {
+        background: var(--bg-elevated);
+    }
+
+    .controls {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 16px 20px 16px 50px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .search-box input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-glow);
+        transform: translateY(-2px);
+    }
+
+    .search-box input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        pointer-events: none;
+    }
+
+    .btn {
+        padding: 14px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+        white-space: nowrap;
+    }
+
+    .btn:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn.primary {
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        border-color: transparent;
+        color: #fff;
+    }
+
+    .btn.primary:hover {
+        box-shadow: 0 8px 25px var(--accent-glow);
+    }
+
+    .btn.danger {
+        color: #fca5a5;
+    }
+
+    .btn.danger:hover {
+        border-color: var(--danger);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn.icon-only {
+        padding: 14px;
+        min-width: 48px;
+        justify-content: center;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.8s ease-out 0.3s both;
+        padding: 14px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+    }
+
+    .tool-btn {
+        padding: 10px 16px;
+        background: rgba(99, 102, 241, 0.08);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tool-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .tool-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .category-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.8s ease-out 0.35s both;
+    }
+
+    .cat-tab {
+        padding: 8px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
+
+    .cat-tab:hover {
+        border-color: var(--accent);
+        color: var(--text-primary);
+    }
+
+    .cat-tab.active {
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .edit-mode-banner {
+        display: none;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        border-radius: 14px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #fbbf24;
+        align-items: center;
+        gap: 10px;
+        animation: fadeInUp 0.4s ease;
+    }
+
+    .edit-mode-banner.show {
+        display: flex;
+    }
+
+    .edit-mode-banner strong {
+        color: #f59e0b;
+    }
+
+    .section-divider {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        margin: 30px 0 20px;
+        color: var(--pin);
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .section-divider.show {
+        display: flex;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+    }
+
+    .section-divider.pinned-divider {
+        margin-top: 0;
+    }
+
+    .section-divider.others-divider {
+        color: var(--text-secondary);
+    }
+
+    .section-divider.others-divider::before,
+    .section-divider.others-divider::after {
+        background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.3), transparent);
+    }
+
+    .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .link-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .link-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #a855f7, #ec4899);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .link-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .link-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--accent);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--accent-glow);
+    }
+
+    .link-card.favorite {
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, var(--bg-card) 60%);
+    }
+
+    .link-card.favorite::before {
+        background: linear-gradient(90deg, #ec4899, #f43f5e, #ec4899);
+    }
+
+    .link-card.favorite:hover {
+        border-color: #ec4899;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(236, 72, 153, 0.4);
+    }
+
+    .link-card.pinned {
+        border-color: rgba(251, 191, 36, 0.5);
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, var(--bg-card) 60%);
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+    }
+
+    .link-card.pinned::before {
+        background: linear-gradient(90deg, var(--pin), #f59e0b, #fbbf24);
+        transform: scaleX(1);
+    }
+
+    .link-card.pinned:hover {
+        border-color: var(--pin);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--pin-glow);
+    }
+
+    .badges {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        gap: 6px;
+        z-index: 3;
+        align-items: center;
+    }
+
+    .badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 100px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        animation: pinPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .badge.pin-badge {
+        background: linear-gradient(135deg, var(--pin), #f59e0b);
+        color: #1a1a1a;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+    }
+
+    .badge.fav-badge {
+        background: linear-gradient(135deg, #ec4899, #f43f5e);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+    }
+
+    .badge.new-badge {
+        background: linear-gradient(135deg, var(--success), #059669);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .badge.clicks-badge {
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--accent);
+        border: 1px solid var(--border);
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+
+    @keyframes pinPop {
+        0% { transform: scale(0) rotate(-180deg); }
+        100% { transform: scale(1) rotate(0); }
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-right: 60px;
+    }
+
+    .link-card.pinned .card-header,
+    .link-card.favorite .card-header {
+        padding-right: 100px;
+    }
+
+    .favicon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), #a855f7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #fff;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .link-card.pinned .favicon {
+        background: linear-gradient(135deg, var(--pin), #f59e0b);
+        color: #1a1a1a;
+    }
+
+    .link-card.favorite .favicon {
+        background: linear-gradient(135deg, #ec4899, #f43f5e);
+    }
+
+    .favicon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-title {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .card-title h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 3px;
+    }
+
+    .card-title .domain {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tag-chip {
+        display: inline-block;
+        padding: 2px 8px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        font-size: 0.68rem;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .card-url {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        word-break: break-all;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        font-family: 'Consolas', 'Monaco', monospace;
+        line-height: 1.4;
+        max-height: 60px;
+        overflow: hidden;
+        border-left: 3px solid var(--accent);
+        position: relative;
+    }
+
+    [data-theme="light"] .card-url {
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    .link-card.pinned .card-url {
+        border-left-color: var(--pin);
+    }
+
+    .link-card.favorite .card-url {
+        border-left-color: #ec4899;
+    }
+
+    .card-note {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        padding: 8px 12px;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 8px;
+        border-left: 2px solid var(--accent);
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: auto;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 9px 8px;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .action-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .action-btn.copied {
+        background: var(--success);
+        border-color: var(--success);
+        color: #fff;
+    }
+
+    .action-btn.edit-btn:hover {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: #fff;
+    }
+
+    .action-btn.delete-btn {
+        flex: 0;
+        padding: 9px 10px;
+    }
+
+    .action-btn.delete-btn:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+    }
+
+    .action-btn.pin-btn {
+        flex: 0;
+        padding: 9px 10px;
+    }
+
+    .action-btn.pin-btn:hover {
+        background: var(--pin);
+        border-color: var(--pin);
+        color: #1a1a1a;
+    }
+
+    .action-btn.fav-btn {
+        flex: 0;
+        padding: 9px 10px;
+    }
+
+    .action-btn.fav-btn:hover {
+        background: #ec4899;
+        border-color: #ec4899;
+    }
+
+    .link-card.favorite .action-btn.fav-btn {
+        background: linear-gradient(135deg, #ec4899, #f43f5e);
+        border-color: #ec4899;
+        color: #fff;
+    }
+
+    .link-card.pinned .action-btn.pin-btn {
+        background: linear-gradient(135deg, var(--pin), #f59e0b);
+        border-color: var(--pin);
+        color: #1a1a1a;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    }
+
+    .action-btn.qr-btn {
+        flex: 0;
+        padding: 9px 10px;
+    }
+
+    .action-btn.qr-btn:hover {
+        background: #8b5cf6;
+        border-color: #8b5cf6;
+        color: #fff;
+    }
+
+    .link-card.editing {
+        border-color: var(--warning);
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2), 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .link-card.editing::before {
+        background: linear-gradient(90deg, var(--warning), var(--danger));
+        transform: scaleX(1);
+    }
+
+    .edit-input {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.25s ease;
+        font-family: inherit;
+    }
+
+    [data-theme="light"] .edit-input {
+        background: #fff;
+    }
+
+    .edit-input:focus {
+        border-color: var(--warning);
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    }
+
+    .edit-input.title-input {
+        font-weight: 600;
+    }
+
+    .edit-input.url-input {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.85rem;
+    }
+
+    .edit-label {
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .tag-input-wrap {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 10px;
+        min-height: 42px;
+    }
+
+    [data-theme="light"] .tag-input-wrap {
+        background: #fff;
+    }
+
+    .tag-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        background: rgba(99, 102, 241, 0.2);
+        border-radius: 100px;
+        font-size: 0.75rem;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .tag-pill button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0;
+        margin-left: 2px;
+    }
+
+    .tag-input-wrap input {
+        flex: 1;
+        min-width: 100px;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        outline: none;
+    }
+
+    .drag-handle {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid var(--border);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+        z-index: 5;
+    }
+
+    .drag-handle:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+
+    body.reorder-mode .drag-handle {
+        display: flex;
+    }
+
+    body.reorder-mode .badges {
+        display: none;
+    }
+
+    .link-card.dragging {
+        opacity: 0.4;
+        transform: scale(0.98);
+        border-color: var(--warning);
+        cursor: grabbing;
+    }
+
+    .link-card.drag-over {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+        transform: translateY(-4px) scale(1.02);
+    }
+
+    .bulk-bar {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(150px);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 12px 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 998;
+        backdrop-filter: blur(20px);
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        max-width: 90vw;
+    }
+
+    .bulk-bar.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .bulk-bar button {
+        padding: 8px 14px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .bulk-bar button:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    .bulk-bar button.danger {
+        color: #fca5a5;
+    }
+
+    .bulk-bar button.danger:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+    }
+
+    .card-checkbox {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--bg-card);
+        border: 2px solid var(--border);
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 800;
+        transition: all 0.2s ease;
+        z-index: 5;
+    }
+
+    .card-checkbox:hover {
+        border-color: var(--accent);
+    }
+
+    .card-checkbox.checked {
+        background: var(--accent);
+        border-color: var(--accent);
+    }
+
+    body.select-mode .card-checkbox {
+        display: flex;
+    }
+
+    body.select-mode .badges {
+        display: none;
+    }
+
+    body.select-mode .drag-handle {
+        display: none;
+    }
+
+    .link-card.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .undo-bar {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(150px);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 14px 20px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        backdrop-filter: blur(20px);
+        font-size: 0.9rem;
+    }
+
+    .undo-bar.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .undo-bar button {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .undo-bar button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-secondary);
+        grid-column: 1 / -1;
+    }
+
+    .empty-state svg {
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .link-card {
+        animation: cardIn 0.5s ease-out backwards;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 10px;
+    }
+
+    .toast {
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-120px);
+        background: var(--success);
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 90vw;
+    }
+
+    .toast.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.warn {
+        background: var(--warning);
+        color: #1a1a1a;
+        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
+    }
+
+    .toast.error {
+        background: var(--danger);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .add-form {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 20px;
+        display: none;
+        animation: fadeInUp 0.4s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .add-form.show {
+        display: block;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .form-row input,
+    .form-row textarea {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    [data-theme="light"] .form-row input,
+    [data-theme="light"] .form-row textarea {
+        background: #f8fafc;
+    }
+
+    .form-row input:focus,
+    .form-row textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-row input::placeholder,
+    .form-row textarea::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .form-hint {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 8px;
+        border-left: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-warning {
+        font-size: 0.75rem;
+        color: var(--danger);
+        margin-top: 4px;
+        display: none;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .input-warning.show {
+        display: flex;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1001;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.9) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal h2 {
+        font-size: 1.15rem;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, var(--accent), #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .modal .qr-container {
+        background: #fff;
+        padding: 16px;
+        border-radius: 14px;
+        display: inline-block;
+        margin-bottom: 16px;
+    }
+
+    .modal .qr-container img {
+        display: block;
+        width: 200px;
+        height: 200px;
+    }
+
+    .modal p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        word-break: break-all;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+    }
+
+    .shortcuts-panel {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        display: none;
+        z-index: 997;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+        animation: fadeInUp 0.3s ease;
+    }
+
+    .shortcuts-panel.show {
+        display: block;
+    }
+
+    .shortcuts-panel h4 {
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .shortcuts-panel .kbd {
+        display: inline-block;
+        padding: 2px 6px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-family: 'Consolas', monospace;
+        font-size: 0.7rem;
+        color: var(--accent);
+        margin: 0 2px;
+    }
+
+    .shortcuts-panel .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 4px 0;
+    }
+
+    @media (max-width: 640px) {
+        body {
+            padding: 20px 12px 100px;
+        }
+
+        .controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .controls .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .links-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats {
+            gap: 8px;
+        }
+
+        .stat-item {
+            font-size: 0.75rem;
+            padding: 8px 12px;
+        }
+
+        .card-actions {
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            font-size: 0.72rem;
+            padding: 8px 6px;
+        }
+
+        .card-header {
+            padding-right: 60px;
+        }
+
+        .link-card.pinned .card-header,
+        .link-card.favorite .card-header {
+            padding-right: 90px;
+        }
+
+        .shortcuts-panel {
+            right: 12px;
+            left: 12px;
+            bottom: 12px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🔗 URL Koleksiyonum Pro</h1>
+        <p class="subtitle">Sabitle · Favorile · Etiketle · Not al · QR kod · Tema değiştir</p>
+        <div class="stats">
+            <div class="stat-item clickable" id="filterAll" title="Tümünü göster">📊 Toplam: <strong id="totalCount">0</strong></div>
+            <div class="stat-item">🔍 Görünen: <strong id="visibleCount">0</strong></div>
+            <div class="stat-item pin-stat clickable" id="filterPinned" title="Sadece sabitlenenler">📌 Sabit: <strong id="pinnedCount">0</strong></div>
+            <div class="stat-item clickable" id="filterFav" title="Sadece favoriler" style="color:#ec4899">⭐ Favori: <strong id="favCount" style="color:#ec4899">0</strong></div>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="URL, başlık, etiket veya not ara...">
+        </div>
+        <button class="btn primary" id="addBtn">➕ Yeni Ekle</button>
+        <button class="btn icon-only" id="themeBtn" title="Tema değiştir">🌙</button>
+    </div>
+
+    <div class="toolbar">
+        <button class="tool-btn" id="reorderBtn">↕️ Sırala</button>
+        <button class="tool-btn" id="selectBtn">☑️ Seç</button>
+        <button class="tool-btn" id="exportBtn">📥 Dışa Aktar</button>
+        <button class="tool-btn" id="exportMdBtn">📄 Markdown</button>
+        <button class="tool-btn" id="exportHtmlBtn">🌐 HTML</button>
+        <button class="tool-btn" id="importBtn">📤 İçe Aktar</button>
+        <button class="tool-btn" id="shortcutsBtn">⌨️ Kısayollar</button>
+        <button class="tool-btn" id="resetBtn" style="color:#fca5a5">🔄 Sıfırla</button>
+        <input type="file" id="importFile" accept=".json,.md,.html" style="display:none">
+    </div>
+
+    <div class="category-tabs" id="categoryTabs"></div>
+
+    <div class="edit-mode-banner" id="editBanner">
+        <span>↕️</span>
+        <span><strong>Sıralama modu aktif</strong> — Kartları tutup sürükleyerek istediğin sıraya taşı.</span>
+    </div>
+
+    <div class="add-form" id="addForm">
+        <div class="form-hint">💡 Aynı URL'yi iki kez ekleyemezsin — otomatik kontrol edilir.</div>
+        <div class="form-row">
+            <input type="text" id="newTitle" placeholder="Başlık (örn: Google)">
+        </div>
+        <div class="form-row">
+            <input type="url" id="newUrl" placeholder="https://example.com">
+        </div>
+        <div class="input-warning" id="newUrlWarning">⚠️ Bu URL zaten kayıtlı!</div>
+        <div class="form-row">
+            <input type="text" id="newTags" placeholder="Etiketler (virgülle ayır: iş, okul, blog)">
+        </div>
+        <div class="form-row">
+            <textarea id="newNote" placeholder="Not (opsiyonel)..." rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn" id="cancelBtn">İptal</button>
+            <button class="btn primary" id="saveBtn">💾 Kaydet</button>
+        </div>
+    </div>
+
+    <div class="section-divider pinned-divider" id="pinnedDivider">
+        <span>📌 Sabitlenenler</span>
+    </div>
+    <div class="links-grid" id="pinnedGrid"></div>
+
+    <div class="section-divider others-divider" id="othersDivider">
+        <span>📄 Diğer Linkler</span>
+    </div>
+    <div class="links-grid" id="linksGrid"></div>
+</div>
+
+<div class="toast" id="toast">✅ Kopyalandı!</div>
+
+<div class="bulk-bar" id="bulkBar">
+    <span id="bulkCount">0 seçili</span>
+    <button id="bulkPin">📌 Sabitle</button>
+    <button id="bulkUnpin">📍 Kaldır</button>
+    <button id="bulkFav">⭐ Favori</button>
+    <button id="bulkTag">🏷️ Etiket</button>
+    <button id="bulkCopy">📋 Kopyala</button>
+    <button id="bulkDelete" class="danger">🗑️ Sil</button>
+    <button id="bulkCancel">❌ İptal</button>
+</div>
+
+<div class="undo-bar" id="undoBar">
+    <span id="undoText">🗑️ Silindi</span>
+    <button id="undoBtn">↶ Geri Al</button>
+</div>
+
+<div class="modal-overlay" id="qrModal">
+    <div class="modal">
+        <button class="modal-close" id="qrClose">✕</button>
+        <h2>📱 QR Kod</h2>
+        <div class="qr-container">
+            <img id="qrImage" alt="QR Code">
+        </div>
+        <p id="qrUrl"></p>
+    </div>
+</div>
+
+<div class="shortcuts-panel" id="shortcutsPanel">
+    <h4>⌨️ Klavye Kısayolları</h4>
+    <div class="row"><span>Yeni ekle</span><span><span class="kbd">Ctrl</span>+<span class="kbd">K</span></span></div>
+    <div class="row"><span>Aramaya git</span><span><span class="kbd">/</span></span></div>
+    <div class="row"><span>Kaydet (edit)</span><span><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span></span></div>
+    <div class="row"><span>İptal (edit)</span><span><span class="kbd">Esc</span></span></div>
+    <div class="row"><span>Tema değiştir</span><span><span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">L</span></span></div>
+    <div class="row"><span>Yardım</span><span><span class="kbd">?</span></span></div>
+</div>
+
+<script>
+/* ============================================
+   BAŞLANGIÇ LİNKLERİ
+   ============================================ */
+const defaultLinks = [
+    {
+        title: "GitHub",
+        url: "https://github.com",
+        pinned: true,
+        favorite: true,
+        tags: ["kod", "geliştirme"],
+        note: "Ana kod deposu"
+    },
+    {
+        title: "ChatGPT",
+        url: "https://chat.openai.com",
+        pinned: true,
+        tags: ["ai"],
+        note: ""
+    },
+    {
+        title: "YouTube",
+        url: "https://youtube.com",
+        tags: ["video"]
+    },
+    {
+        title: "Twitter / X",
+        url: "https://x.com",
+        tags: ["sosyal"]
+    },
+];
+
+let links = JSON.parse(localStorage.getItem('myLinksPro')) || defaultLinks;
+let lastDeleted = null;
+let lastDeletedIndex = -1;
+let reorderMode = false;
+let selectMode = false;
+let selectedIndexes = new Set();
+let currentCategory = 'all';
+
+const pinnedGrid = document.getElementById('pinnedGrid');
+const grid = document.getElementById('linksGrid');
+const pinnedDivider = document.getElementById('pinnedDivider');
+const othersDivider = document.getElementById('othersDivider');
+const searchInput = document.getElementById('searchInput');
+const totalCount = document.getElementById('totalCount');
+const visibleCount = document.getElementById('visibleCount');
+const pinnedCount = document.getElementById('pinnedCount');
+const favCount = document.getElementById('favCount');
+const toast = document.getElementById('toast');
+const addForm = document.getElementById('addForm');
+const editBanner = document.getElementById('editBanner');
+const undoBar = document.getElementById('undoBar');
+const undoText = document.getElementById('undoText');
+const bulkBar = document.getElementById('bulkBar');
+const bulkCount = document.getElementById('bulkCount');
+const categoryTabs = document.getElementById('categoryTabs');
+
+/* ---------- Yardımcılar ---------- */
+function getDomain(url) {
+    try {
+        return new URL(url).hostname.replace('www.', '');
+    } catch {
+        return url;
+    }
+}
+
+function getFavicon(url) {
+    try {
+        const domain = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    } catch {
+        return null;
+    }
+}
+
+function getInitial(t) {
+    return t ? t.charAt(0).toUpperCase() : '?';
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+}
+
+function escapeAttr(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function normalizeUrl(url) {
+    try {
+        const u = new URL(url);
+        let path = u.pathname.replace(/\/+$/, '') || '/';
+        return (u.hostname.toLowerCase() + path + u.search).toLowerCase();
+    } catch {
+        return String(url).toLowerCase().replace(/\/+$/, '');
+    }
+}
+
+function findDuplicateIndex(url, ignoreIndex = -1) {
+    const norm = normalizeUrl(url);
+    return links.findIndex((l, i) => i !== ignoreIndex && normalizeUrl(l.url) === norm);
+}
+
+function showToast(msg, type = 'success') {
+    toast.textContent = msg;
+    toast.className = 'toast';
+    if (type === 'warn') toast.classList.add('warn');
+    else if (type === 'error') toast.classList.add('error');
+    else toast.style.background = 'var(--success)';
+    if (type === 'success') toast.style.background = 'var(--success)';
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function saveLinks() {
+    localStorage.setItem('myLinksPro', JSON.stringify(links));
+}
+
+/* ---------- Tema ---------- */
+function initTheme() {
+    const saved = localStorage.getItem('myLinksTheme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+}
+
+function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('myLinksTheme', next);
+    document.getElementById('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
+    showToast(next === 'dark' ? '🌙 Karanlık tema' : '☀️ Açık tema');
+}
+
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+
+/* ---------- Kategori sekmeleri ---------- */
+function getAllTags() {
+    const set = new Set();
+    links.forEach(l => (l.tags || []).forEach(t => set.add(t)));
+    return [...set].sort();
+}
+
+function renderCategoryTabs() {
+    const tags = getAllTags();
+    categoryTabs.innerHTML = '';
+    const cats = [
+        { id: 'all', label: '📋 Tümü' },
+        { id: 'pinned', label: '📌 Sabit' },
+        { id: 'fav', label: '⭐ Favori' },
+        ...tags.map(t => ({ id: 'tag:' + t, label: '🏷️ ' + t }))
+    ];
+    cats.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-tab' + (currentCategory === c.id ? ' active' : '');
+        btn.textContent = c.label;
+        btn.addEventListener('click', () => {
+            currentCategory = c.id;
+            renderCategoryTabs();
+            renderLinks(searchInput.value);
+        });
+        categoryTabs.appendChild(btn);
+    });
+}
+
+/* ---------- Filtreleme ---------- */
+function applyFilters(list, filter) {
+    let out = list;
+    if (currentCategory === 'pinned') out = out.filter(l => l.pinned);
+    else if (currentCategory === 'fav') out = out.filter(l => l.favorite);
+    else if (currentCategory.startsWith('tag:')) {
+        const tag = currentCategory.slice(4);
+        out = out.filter(l => (l.tags || []).includes(tag));
+    }
+    if (filter && filter.trim()) {
+        const q = filter.toLowerCase().trim();
+        out = out.filter(l =>
+            (l.title || '').toLowerCase().includes(q) ||
+            (l.url || '').toLowerCase().includes(q) ||
+            (l.note || '').toLowerCase().includes(q) ||
+            (l.tags || []).some(t => t.toLowerCase().includes(q))
+        );
+    }
+    return out;
+}
+
+/* ---------- Kart oluştur ---------- */
+function createCard(link, index, delay) {
+    const card = document.createElement('div');
+    card.className = 'link-card';
+    if (link.pinned) card.classList.add('pinned');
+    if (link.favorite) card.classList.add('favorite');
+    if (selectedIndexes.has(index)) card.classList.add('selected');
+    card.style.animationDelay = `${delay * 0.04}s`;
+    card.dataset.index = index;
+    card.draggable = false;
+
+    const domain = getDomain(link.url);
+    const favicon = getFavicon(link.url);
+    const clickCount = link.clicks || 0;
+    const isNew = link.addedAt && (Date.now() - new Date(link.addedAt).getTime() < 1000 * 60 * 60 * 24);
+
+    const badges = [];
+    if (link.pinned) badges.push('<div class="badge pin-badge">📌 Sabit</div>');
+    if (link.favorite) badges.push('<div class="badge fav-badge">⭐</div>');
+    if (isNew) badges.push('<div class="badge new-badge">Yeni</div>');
+    if (clickCount > 0) badges.push(`<div class="badge clicks-badge">${clickCount} tık</div>`);
+
+    const tagsHtml = (link.tags || []).map(t =>
+        `<span class="tag-chip">${escapeHtml(t)}</span>`
+    ).join(' ');
+
+    const noteHtml = link.note
+        ? `<div class="card-note">📝 ${escapeHtml(link.note)}</div>` : '';
+
+    card.innerHTML = `
+        <div class="card-checkbox" data-index="${index}">✓</div>
+        <div class="drag-handle" title="Sürükle">⋮⋮</div>
+        <div class="badges">${badges.join('')}</div>
+        <div class="card-header">
+            <div class="favicon">
+                ${favicon
+                    ? `<img src="${favicon}" alt="" onerror="this.parentElement.textContent='${escapeAttr(getInitial(link.title))}'">`
+                    : getInitial(link.title)}
+            </div>
+            <div class="card-title">
+                <h3>${escapeHtml(link.title)}</h3>
+                <div class="domain">${escapeHtml(domain)}</div>
+            </div>
+        </div>
+        ${tagsHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap">${tagsHtml}</div>` : ''}
+        <div class="card-url">${escapeHtml(link.url)}</div>
+        ${noteHtml}
+        <div class="card-actions">
+            <a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" class="action-btn open-btn" data-index="${index}">🔗 Aç</a>
+            <button class="action-btn copy-btn" data-url="${escapeAttr(link.url)}" data-index="${index}">📋</button>
+            <button class="action-btn qr-btn" data-index="${index}" title="QR Kod">📱</button>
+            <button class="action-btn fav-btn" data-index="${index}" title="Favori">${link.favorite ? '⭐' : '☆'}</button>
+            <button class="action-btn pin-btn" data-index="${index}" title="${link.pinned ? 'Sabitlemeyi kaldır' : 'Sabitle'}">📌</button>
+            <button class="action-btn edit-btn" data-index="${index}" title="Düzenle">✏️</button>
+            <button class="action-btn delete-btn" data-index="${index}" title="Sil">🗑️</button>
+        </div>
+    `;
+    return card;
+}
+
+/* ---------- Render ---------- */
+function renderLinks(filter = '') {
+    const filtered = applyFilters(links, filter);
+    const pinned = filtered.filter(l => l.pinned);
+    const others = filtered.filter(l => !l.pinned);
+
+    pinnedGrid.innerHTML = '';
+    grid.innerHTML = '';
+
+    if (filtered.length === 0) {
+        pinnedDivider.classList.remove('show');
+        othersDivider.classList.remove('show');
+        grid.innerHTML = `
+            <div class="empty-state">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <h3>Sonuç bulunamadı</h3>
+                <p>Farklı bir arama terimi veya kategori deneyin</p>
+            </div>`;
+    } else {
+        if (pinned.length > 0) {
+            pinnedDivider.classList.add('show');
+            pinned.forEach((link, i) => pinnedGrid.appendChild(createCard(link, links.indexOf(link), i)));
+        } else {
+            pinnedDivider.classList.remove('show');
+        }
+        if (others.length > 0) {
+            othersDivider.classList.toggle('show', pinned.length > 0);
+            others.forEach((link, i) => grid.appendChild(createCard(link, links.indexOf(link), i)));
+        } else {
+            othersDivider.classList.remove('show');
+        }
+    }
+
+    totalCount.textContent = links.length;
+    visibleCount.textContent = filtered.length;
+    pinnedCount.textContent = links.filter(l => l.pinned).length;
+    favCount.textContent = links.filter(l => l.favorite).length;
+
+    if (reorderMode) document.querySelectorAll('.link-card').forEach(c => c.draggable = true);
+    if (selectMode) updateBulkBar();
+    renderCategoryTabs();
+}
+
+/* ---------- Bulk selection ---------- */
+function updateBulkBar() {
+    if (selectedIndexes.size === 0) {
+        bulkBar.classList.remove('show');
+    } else {
+        bulkBar.classList.add('show');
+        bulkCount.textContent = `${selectedIndexes.size} seçili`;
+    }
+}
+
+function toggleSelect(index) {
+    if (selectedIndexes.has(index)) selectedIndexes.delete(index);
+    else selectedIndexes.add(index);
+    renderLinks(searchInput.value);
+}
+
+/* ---------- Düzenleme ---------- */
+function startEdit(card, index) {
+    if (card.classList.contains('editing')) return;
+    const link = links[index];
+    card.classList.add('editing');
+    card.dataset.originalHtml = card.innerHTML;
+    const tags = link.tags ? [...link.tags] : [];
+
+    card.innerHTML = `
+        <div>
+            <label class="edit-label">Başlık</label>
+            <input class="edit-input title-input" type="text" value="${escapeAttr(link.title)}" id="editTitle-${index}">
+        </div>
+        <div>
+            <label class="edit-label">URL</label>
+            <input class="edit-input url-input" type="text" value="${escapeAttr(link.url)}" id="editUrl-${index}">
+        </div>
+        <div class="input-warning" id="editUrlWarning-${index}">⚠️ Bu URL zaten kayıtlı!</div>
+        <div>
+            <label class="edit-label">Etiketler</label>
+            <div class="tag-input-wrap" id="editTagsWrap-${index}">
+                ${tags.map(t => `<span class="tag-pill">${escapeHtml(t)}<button data-tag="${escapeAttr(t)}" class="rm-tag">×</button></span>`).join('')}
+                <input type="text" id="editTagInput-${index}" placeholder="Etiket + Enter">
+            </div>
+        </div>
+        <div>
+            <label class="edit-label">Not</label>
+            <textarea class="edit-input" id="editNote-${index}" rows="2" placeholder="Not...">${escapeHtml(link.note || '')}</textarea>
+        </div>
+        <div class="card-actions">
+            <button class="action-btn cancel-edit-btn" data-index="${index}">❌ İptal</button>
+            <button class="action-btn save-edit-btn" data-index="${index}" style="background:var(--success);border-color:var(--success);color:#fff">💾 Kaydet</button>
+        </div>
+    `;
+
+    const urlInp = document.getElementById(`editUrl-${index}`);
+    const warn = document.getElementById(`editUrlWarning-${index}`);
+    urlInp.addEventListener('input', () => {
+        let v = urlInp.value.trim();
+        if (!v) {
+            warn.classList.remove('show');
+            return;
+        }
+        const check = v.startsWith('http') ? v : 'https://' + v;
+        const dup = findDuplicateIndex(check, index);
+        warn.classList.toggle('show', dup !== -1);
+    });
+
+    const tagWrap = document.getElementById(`editTagsWrap-${index}`);
+    const tagInput = document.getElementById(`editTagInput-${index}`);
+    tagInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const t = tagInput.value.trim().replace(/,$/, '');
+            if (!t) return;
+            if (!tags.includes(t)) tags.push(t);
+            tagInput.value = '';
+            tagWrap.querySelectorAll('.tag-pill').forEach(el => el.remove());
+            tags.forEach(tg => {
+                const pill = document.createElement('span');
+                pill.className = 'tag-pill';
+                pill.innerHTML = `${escapeHtml(tg)}<button data-tag="${escapeAttr(tg)}" class="rm-tag">×</button>`;
+                tagWrap.insertBefore(pill, tagInput);
+            });
+        }
+    });
+    tagWrap.addEventListener('click', e => {
+        if (e.target.classList.contains('rm-tag')) {
+            const t = e.target.dataset.tag;
+            const i = tags.indexOf(t);
+            if (i > -1) tags.splice(i, 1);
+            e.target.parentElement.remove();
+        }
+    });
+
+    setTimeout(() => {
+        const t = document.getElementById(`editTitle-${index}`);
+        if (t) {
+            t.focus();
+            t.select();
+        }
+    }, 30);
+
+    card._editTags = tags;
+}
+
+function cancelEdit(card) {
+    if (card.dataset.originalHtml) {
+        card.innerHTML = card.dataset.originalHtml;
+        card.classList.remove('editing');
+        delete card.dataset.originalHtml;
+        delete card._editTags;
+    } else {
+        renderLinks(searchInput.value);
+    }
+}
+
+function saveEdit(card, index) {
+    const title = document.getElementById(`editTitle-${index}`).value.trim();
+    let url = document.getElementById(`editUrl-${index}`).value.trim();
+    const note = document.getElementById(`editNote-${index}`).value.trim();
+    const tags = card._editTags || [];
+
+    if (!title || !url) {
+        showToast('⚠️ Başlık ve URL gerekli', 'warn');
+        return;
+    }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+
+    const dup = findDuplicateIndex(url, index);
+    if (dup !== -1) {
+        showToast(`⚠️ Bu URL zaten kayıtlı: "${links[dup].title}"`, 'warn');
+        return;
+    }
+
+    links[index] = { ...links[index], title, url, note, tags };
+    saveLinks();
+    renderLinks(searchInput.value);
+    showToast('💾 Güncellendi!');
+}
+
+/* ---------- Pin / Favori ---------- */
+function togglePin(index) {
+    const link = links[index];
+    link.pinned = !link.pinned;
+    if (link.pinned) {
+        const [moved] = links.splice(index, 1);
+        let insertAt = 0;
+        for (let i = 0; i < links.length; i++) {
+            if (links[i].pinned) insertAt = i + 1;
+            else break;
+        }
+        links.splice(insertAt, 0, moved);
+        showToast('📌 Sabitlendi');
+    } else {
+        showToast('📍 Sabitleme kaldırıldı');
+    }
+    saveLinks();
+    renderLinks(searchInput.value);
+}
+
+function toggleFav(index) {
+    links[index].favorite = !links[index].favorite;
+    saveLinks();
+    renderLinks(searchInput.value);
+    showToast(links[index].favorite ? '⭐ Favorilere eklendi' : '☆ Favoriden çıkarıldı');
+}
+
+/* ---------- QR Kod ---------- */
+function showQR(url) {
+    const img = document.getElementById('qrImage');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    document.getElementById('qrUrl').textContent = url;
+    document.getElementById('qrModal').classList.add('show');
+}
+
+document.getElementById('qrClose').addEventListener('click', () => {
+    document.getElementById('qrModal').classList.remove('show');
+});
+
+document.getElementById('qrModal').addEventListener('click', e => {
+    if (e.target.id === 'qrModal') e.target.classList.remove('show');
+});
+
+/* ---------- Kart tıklamaları ---------- */
+function handleCardClick(e) {
+    const card = e.target.closest('.link-card');
+    if (!card) return;
+    const cb = e.target.closest('.card-checkbox');
+
+    if (cb) {
+        e.stopPropagation();
+        toggleSelect(parseInt(cb.dataset.index));
+        return;
+    }
+
+    if (selectMode && !e.target.closest('a') && !e.target.closest('button')) {
+        toggleSelect(parseInt(card.dataset.index));
+        return;
+    }
+
+    const copyBtn = e.target.closest('.copy-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
+    const editBtn = e.target.closest('.edit-btn');
+    const pinBtn = e.target.closest('.pin-btn');
+    const favBtn = e.target.closest('.fav-btn');
+    const qrBtn = e.target.closest('.qr-btn');
+    const openBtn = e.target.closest('.open-btn');
+    const saveEditBtn = e.target.closest('.save-edit-btn');
+    const cancelEditBtn = e.target.closest('.cancel-edit-btn');
+
+    if (copyBtn) {
+        navigator.clipboard.writeText(copyBtn.dataset.url).then(() => {
+            copyBtn.classList.add('copied');
+            showToast('✅ URL kopyalandı!');
+            setTimeout(() => copyBtn.classList.remove('copied'), 1200);
+        }).catch(() => showToast('❌ Kopyalanamadı', 'error'));
+        return;
+    }
+
+    if (qrBtn) {
+        showQR(links[parseInt(qrBtn.dataset.index)].url);
+        return;
+    }
+
+    if (openBtn) {
+        const idx = parseInt(openBtn.dataset.index);
+        links[idx].clicks = (links[idx].clicks || 0) + 1;
+        saveLinks();
+        return;
+    }
+
+    if (pinBtn) {
+        togglePin(parseInt(pinBtn.dataset.index));
+        return;
+    }
+
+    if (favBtn) {
+        toggleFav(parseInt(favBtn.dataset.index));
+        return;
+    }
+
+    if (editBtn) {
+        startEdit(card, parseInt(editBtn.dataset.index));
+        return;
+    }
+
+    if (saveEditBtn) {
+        saveEdit(card, parseInt(saveEditBtn.dataset.index));
+        return;
+    }
+
+    if (cancelEditBtn) {
+        cancelEdit(card);
+        return;
+    }
+
+    if (deleteBtn) {
+        const index = parseInt(deleteBtn.dataset.index);
+        lastDeleted = { ...links[index] };
+        lastDeletedIndex = index;
+        links.splice(index, 1);
+        saveLinks();
+        renderLinks(searchInput.value);
+        undoText.textContent = `🗑️ "${lastDeleted.title}" silindi`;
+        undoBar.classList.add('show');
+        clearTimeout(showUndo._t);
+        showUndo._t = setTimeout(() => {
+            undoBar.classList.remove('show');
+            lastDeleted = null;
+            lastDeletedIndex = -1;
+        }, 5000);
+    }
+}
+
+pinnedGrid.addEventListener('click', handleCardClick);
+grid.addEventListener('click', handleCardClick);
+
+[pinnedGrid, grid].forEach(g => {
+    g.addEventListener('keydown', e => {
+        const card = e.target.closest('.link-card.editing');
+        if (!card) return;
+        const index = parseInt(card.dataset.index);
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            saveEdit(card, index);
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEdit(card);
+        }
+    });
+});
+
+/* ---------- Undo ---------- */
+const showUndo = () => {};
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+    if (!lastDeleted) return;
+    links.splice(lastDeletedIndex, 0, lastDeleted);
+    saveLinks();
+    renderLinks(searchInput.value);
+    undoBar.classList.remove('show');
+    clearTimeout(showUndo._t);
+    showToast('↶ Geri alındı');
+    lastDeleted = null;
+    lastDeletedIndex = -1;
+});
+
+/* ---------- Yeni Ekle ---------- */
+document.getElementById('addBtn').addEventListener('click', () => {
+    addForm.classList.toggle('show');
+    if (addForm.classList.contains('show')) {
+        document.getElementById('newTitle').focus();
+    } else {
+        clearAddForm();
+    }
+});
+
+function clearAddForm() {
+    ['newTitle', 'newUrl', 'newTags', 'newNote'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('newUrlWarning').classList.remove('show');
+}
+
+document.getElementById('cancelBtn').addEventListener('click', () => {
+    addForm.classList.remove('show');
+    clearAddForm();
+});
+
+document.getElementById('newUrl').addEventListener('input', e => {
+    const v = e.target.value.trim();
+    const warn = document.getElementById('newUrlWarning');
+    if (!v) {
+        warn.classList.remove('show');
+        return;
+    }
+    let check = v.startsWith('http') ? v : 'https://' + v;
+    const dup = findDuplicateIndex(check);
+    warn.classList.toggle('show', dup !== -1);
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+    const title = document.getElementById('newTitle').value.trim();
+    let url = document.getElementById('newUrl').value.trim();
+    const tagsRaw = document.getElementById('newTags').value.trim();
+    const note = document.getElementById('newNote').value.trim();
+
+    if (!title || !url) {
+        showToast('⚠️ Başlık ve URL gerekli', 'warn');
+        return;
+    }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+
+    const dupIndex = findDuplicateIndex(url);
+    if (dupIndex !== -1) {
+        showToast(`⚠️ Bu URL zaten kayıtlı: "${links[dupIndex].title}"`, 'warn');
+        document.getElementById('newUrlWarning').classList.add('show');
+        return;
+    }
+
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+    links.push({
+        title, url,
+        pinned: false,
+        favorite: false,
+        tags, note,
+        addedAt: new Date().toISOString(),
+        clicks: 0
+    });
+    saveLinks();
+    renderLinks(searchInput.value);
+    clearAddForm();
+    addForm.classList.remove('show');
+    showToast('✅ Link eklendi!');
+});
+
+document.getElementById('newUrl').addEventListener('keypress', e => {
+    if (e.key === 'Enter') document.getElementById('saveBtn').click();
+});
+
+/* ---------- Sıralama Modu ---------- */
+document.getElementById('reorderBtn').addEventListener('click', () => {
+    reorderMode = !reorderMode;
+    if (reorderMode) {
+        selectMode = false;
+        document.body.classList.remove('select-mode');
+        selectedIndexes.clear();
+        updateBulkBar();
+    }
+    document.body.classList.toggle('reorder-mode', reorderMode);
+    editBanner.classList.toggle('show', reorderMode);
+    document.getElementById('reorderBtn').classList.toggle('active', reorderMode);
+    document.getElementById('reorderBtn').innerHTML = reorderMode ? '✅ Bitir' : '↕️ Sırala';
+    document.querySelectorAll('.link-card').forEach(c => c.draggable = reorderMode);
+    showToast(reorderMode ? '↕️ Sıralama modu açık' : '✅ Sıralama modu kapalı');
+});
+
+/* ---------- Seçim Modu ---------- */
+document.getElementById('selectBtn').addEventListener('click', () => {
+    selectMode = !selectMode;
+    if (selectMode) {
+        reorderMode = false;
+        document.body.classList.remove('reorder-mode');
+        editBanner.classList.remove('show');
+        document.getElementById('reorderBtn').classList.remove('active');
+        document.getElementById('reorderBtn').innerHTML = '↕️ Sırala';
+    }
+    document.body.classList.toggle('select-mode', selectMode);
+    document.getElementById('selectBtn').classList.toggle('active', selectMode);
+    document.getElementById('selectBtn').innerHTML = selectMode ? '✅ Bitir' : '☑️ Seç';
+    if (!selectMode) {
+        selectedIndexes.clear();
+        updateBulkBar();
+    }
+    renderLinks(searchInput.value);
+    showToast(selectMode ? '☑️ Seçim modu açık' : '✅ Seçim modu kapalı');
+});
+
+document.getElementById('bulkCancel').addEventListener('click', () => {
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+});
+
+document.getElementById('bulkPin').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    const indexes = [...selectedIndexes];
+    indexes.forEach(i => links[i].pinned = true);
+    const pinned = links.filter(l => l.pinned);
+    const rest = links.filter(l => !l.pinned);
+    links = pinned.concat(rest);
+    saveLinks();
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+    showToast(`📌 ${indexes.length} link sabitlendi`);
+});
+
+document.getElementById('bulkUnpin').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    selectedIndexes.forEach(i => links[i].pinned = false);
+    const n = selectedIndexes.size;
+    saveLinks();
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+    showToast(`📍 ${n} linkten sabitleme kaldırıldı`);
+});
+
+document.getElementById('bulkFav').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    selectedIndexes.forEach(i => links[i].favorite = true);
+    const n = selectedIndexes.size;
+    saveLinks();
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+    showToast(`⭐ ${n} link favorilendi`);
+});
+
+document.getElementById('bulkTag').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    const tag = prompt('Eklenecek etiket:');
+    if (!tag || !tag.trim()) return;
+    const t = tag.trim();
+    selectedIndexes.forEach(i => {
+        if (!links[i].tags) links[i].tags = [];
+        if (!links[i].tags.includes(t)) links[i].tags.push(t);
+    });
+    const n = selectedIndexes.size;
+    saveLinks();
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+    showToast(`🏷️ ${n} linke "${t}" etiketi eklendi`);
+});
+
+document.getElementById('bulkCopy').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    const urls = [...selectedIndexes].map(i => links[i].url).join('\n');
+    navigator.clipboard.writeText(urls).then(() => {
+        showToast(`📋 ${selectedIndexes.size} URL kopyalandı!`);
+        selectedIndexes.clear();
+        renderLinks(searchInput.value);
+    }).catch(() => showToast('❌ Kopyalanamadı', 'error'));
+});
+
+document.getElementById('bulkDelete').addEventListener('click', () => {
+    if (!selectedIndexes.size) return;
+    if (!confirm(`${selectedIndexes.size} link silinecek. Emin misiniz?`)) return;
+    const indexes = [...selectedIndexes].sort((a, b) => b - a);
+    lastDeleted = indexes.map(i => ({ ...links[i], _origIndex: i }));
+    lastDeletedIndex = indexes;
+    indexes.forEach(i => links.splice(i, 1));
+    saveLinks();
+    selectedIndexes.clear();
+    renderLinks(searchInput.value);
+    undoText.textContent = `🗑️ ${indexes.length} link silindi`;
+    undoBar.classList.add('show');
+    clearTimeout(showUndo._t);
+    showUndo._t = setTimeout(() => {
+        undoBar.classList.remove('show');
+        lastDeleted = null;
+        lastDeletedIndex = -1;
+    }, 5000);
+});
+
+const _undoBtn = document.getElementById('undoBtn');
+_undoBtn.replaceWith(_undoBtn.cloneNode(true));
+document.getElementById('undoBtn').addEventListener('click', () => {
+    if (!lastDeleted) return;
+    if (Array.isArray(lastDeleted)) {
+        const arr = [...lastDeleted].sort((a, b) => a._origIndex - b._origIndex);
+        arr.forEach(item => {
+            const { _origIndex, ...rest } = item;
+            links.splice(_origIndex, 0, rest);
+        });
+    } else {
+        links.splice(lastDeletedIndex, 0, lastDeleted);
+    }
+    saveLinks();
+    renderLinks(searchInput.value);
+    undoBar.classList.remove('show');
+    clearTimeout(showUndo._t);
+    showToast('↶ Geri alındı');
+    lastDeleted = null;
+    lastDeletedIndex = -1;
+});
+
+/* ---------- Drag & Drop ---------- */
+let draggedCard = null;
+
+[pinnedGrid, grid].forEach(g => {
+    g.addEventListener('dragstart', e => {
+        const card = e.target.closest('.link-card');
+        if (!card || !reorderMode) return;
+        draggedCard = card;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', card.dataset.index);
+    });
+
+    g.addEventListener('dragend', e => {
+        const card = e.target.closest('.link-card');
+        if (card) card.classList.remove('dragging');
+        document.querySelectorAll('.link-card').forEach(c => c.classList.remove('drag-over'));
+        draggedCard = null;
+    });
+
+    g.addEventListener('dragover', e => {
+        if (!draggedCard) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const target = e.target.closest('.link-card');
+        document.querySelectorAll('.link-card').forEach(c => c.classList.remove('drag-over'));
+        if (target && target !== draggedCard) target.classList.add('drag-over');
+    });
+
+    g.addEventListener('drop', e => {
+        if (!draggedCard) return;
+        e.preventDefault();
+        const target = e.target.closest('.link-card');
+        if (!target || target === draggedCard) return;
+        const fromIndex = parseInt(draggedCard.dataset.index);
+        const toIndex = parseInt(target.dataset.index);
+        const [moved] = links.splice(fromIndex, 1);
+        links.splice(toIndex, 0, moved);
+        saveLinks();
+        renderLinks(searchInput.value);
+        showToast('↕️ Sıralama güncellendi');
+    });
+});
+
+/* ---------- Export JSON ---------- */
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const dataStr = JSON.stringify(links, null, 2);
+    downloadFile(dataStr, `url-koleksiyonum-${today()}.json`, 'application/json');
+    showToast('📥 JSON dışa aktarıldı!');
+});
+
+/* ---------- Export Markdown ---------- */
+document.getElementById('exportMdBtn').addEventListener('click', () => {
+    let md = `# 🔗 URL Koleksiyonum\n\n_Toplam: ${links.length} link_\n\n`;
+    const pinned = links.filter(l => l.pinned);
+    const others = links.filter(l => !l.pinned);
+
+    if (pinned.length) {
+        md += `## 📌 Sabitlenenler\n\n`;
+        pinned.forEach(l => {
+            md += `- [${l.title}](${l.url})${l.note ? ` — _${l.note}_` : ''}\n`;
+            if (l.tags && l.tags.length) md += `  - Etiketler: ${l.tags.join(', ')}\n`;
+        });
+        md += '\n';
+    }
+
+    if (others.length) {
+        md += `## 📄 Diğer Linkler\n\n`;
+        others.forEach(l => {
+            md += `- [${l.title}](${l.url})${l.note ? ` — _${l.note}_` : ''}\n`;
+            if (l.tags && l.tags.length) md += `  - Etiketler: ${l.tags.join(', ')}\n`;
+        });
+    }
+
+    downloadFile(md, `url-koleksiyonum-${today()}.md`, 'text/markdown');
+    showToast('📄 Markdown dışa aktarıldı!');
+});
+
+/* ---------- Export HTML ---------- */
+document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>URL Koleksiyonum</title>
+<style>
+body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:20px;background:#0a0e27;color:#fff}
+a{color:#818cf8}
+h1{background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+li{margin:8px 0;line-height:1.5}
+.pinned{color:#fbbf24}
+</style></head><body>
+<h1>🔗 URL Koleksiyonum</h1>
+<p>Toplam ${links.length} link</p>
+<ul>`;
+
+    links.forEach(l => {
+        html += `<li><a href="${escapeAttr(l.url)}" target="_blank">${escapeHtml(l.title)}</a>`;
+        if (l.note) html += ` — <i>${escapeHtml(l.note)}</i>`;
+        if (l.pinned) html += ` <span class="pinned">📌</span>`;
+        html += `</li>`;
+    });
+
+    html += `</ul></body></html>`;
+    downloadFile(html, `url-koleksiyonum-${today()}.html`, 'text/html');
+    showToast('🌐 HTML dışa aktarıldı!');
+});
+
+function today() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/* ---------- Import ---------- */
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+
+document.getElementById('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const content = ev.target.result;
+        const name = file.name.toLowerCase();
+        let imported = [];
+
+        try {
+            if (name.endsWith('.json')) {
+                imported = JSON.parse(content);
+                if (!Array.isArray(imported)) throw new Error('JSON dizi değil');
+            } else if (name.endsWith('.md')) {
+                const rx = /\[([^\]]+)\]\(([^)]+)\)/g;
+                let m;
+                while ((m = rx.exec(content)) !== null) {
+                    imported.push({ title: m[1].trim(), url: m[2].trim() });
+                }
+            } else if (name.endsWith('.html') || name.endsWith('.htm')) {
+                const doc = new DOMParser().parseFromString(content, 'text/html');
+                doc.querySelectorAll('a[href]').forEach(a => {
+                    const url = a.getAttribute('href');
+                    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                        imported.push({ title: a.textContent.trim() || url, url });
+                    }
+                });
+            } else {
+                showToast('❌ Desteklenmeyen dosya', 'error');
+                return;
+            }
+
+            if (!imported.length) {
+                showToast('❌ Hiç link bulunamadı', 'error');
+                return;
+            }
+
+            let added = 0, skipped = 0;
+            const skipTitles = [];
+
+            imported.forEach(item => {
+                if (!item || !item.url || !item.title) return;
+                let url = item.url.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+
+                const dup = findDuplicateIndex(url);
+                if (dup !== -1) {
+                    skipped++;
+                    if (skipTitles.length < 3) skipTitles.push(item.title);
+                    return;
+                }
+
+                links.push({
+                    title: item.title,
+                    url,
+                    pinned: !!item.pinned,
+                    favorite: !!item.favorite,
+                    tags: Array.isArray(item.tags) ? item.tags : [],
+                    note: item.note || '',
+                    addedAt: new Date().toISOString(),
+                    clicks: 0
+                });
+                added++;
+            });
+
+            saveLinks();
+            renderLinks(searchInput.value);
+
+            if (added && skipped) {
+                showToast(`✅ ${added} eklendi, ⚠️ ${skipped} mükerrer atlandı`, 'warn');
+            } else if (added) {
+                showToast(`✅ ${added} link eklendi!`);
+            } else if (skipped) {
+                showToast(`⚠️ Tüm linkler zaten kayıtlı (${skipped} mükerrer)`, 'warn');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('❌ Dosya okunamadı: ' + err.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+});
+
+/* ---------- Sıfırla ---------- */
+document.getElementById('resetBtn').addEventListener('click', () => {
+    if (confirm('Tüm linkler silinip varsayılan listeye dönülecek. Emin misiniz?')) {
+        links = JSON.parse(JSON.stringify(defaultLinks));
+        saveLinks();
+        renderLinks();
+        searchInput.value = '';
+        currentCategory = 'all';
+        renderCategoryTabs();
+        showToast('🔄 Sıfırlandı');
+    }
+});
+
+/* ---------- Arama ---------- */
+searchInput.addEventListener('input', e => renderLinks(e.target.value));
+
+/* ---------- İstatistik kartlarına tıklayınca filtrele ---------- */
+document.getElementById('filterAll').addEventListener('click', () => {
+    currentCategory = 'all';
+    renderCategoryTabs();
+    renderLinks(searchInput.value);
+});
+
+document.getElementById('filterPinned').addEventListener('click', () => {
+    currentCategory = 'pinned';
+    renderCategoryTabs();
+    renderLinks(searchInput.value);
+});
+
+document.getElementById('filterFav').addEventListener('click', () => {
+    currentCategory = 'fav';
+    renderCategoryTabs();
+    renderLinks(searchInput.value);
+});
+
+/* ---------- Kısayollar paneli ---------- */
+document.getElementById('shortcutsBtn').addEventListener('click', () => {
+    document.getElementById('shortcutsPanel').classList.toggle('show');
+});
+
+/* ---------- Klavye kısayolları ---------- */
+document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    const inInput = tag === 'input' || tag === 'textarea';
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        addForm.classList.add('show');
+        document.getElementById('newTitle').focus();
+    }
+
+    if (!inInput && e.key === '/') {
+        e.preventDefault();
+        searchInput.focus();
+    }
+
+    if (!inInput && e.key === '?') {
+        e.preventDefault();
+        document.getElementById('shortcutsPanel').classList.toggle('show');
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        toggleTheme();
+    }
+});
+
+/* ---------- Başlangıç ---------- */
+initTheme();
+renderLinks();
+</script>
+</body>
+</html>
