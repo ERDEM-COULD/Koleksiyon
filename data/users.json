@@ -1,0 +1,28 @@
+[
+  {
+    "id": "73faedf0a0ea7dc4",
+    "username": "ERDEM",
+    "password": "HGFD216789",
+    "visibility": "private",
+    "isPublic": false,
+    "friendsOnly": false,
+    "friends": [
+      "serhat"
+    ],
+    "pinnedUsers": [],
+    "createdAt": "2026-09-17T18:02:22.129Z"
+  },
+  {
+    "id": "f4dcec2a80d2524e",
+    "username": "serhat",
+    "password": "1234",
+    "visibility": "public",
+    "isPublic": true,
+    "friendsOnly": false,
+    "friends": [
+      "ERDEM"
+    ],
+    "pinnedUsers": [],
+    "createdAt": "2026-09-17T18:02:43.986Z"
+  }
+]
